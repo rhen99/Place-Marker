@@ -1,8 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import mapboxgl from "mapbox-gl";
+
+mapboxgl.accessToken = "pk.eyJ1IjoibGluY29sZGFyaGVuOTkiLCJhIjoiY2tsYzV0bjFhMDQybjJ2bjFmdTdtbDJvZyJ9.yk6MOqmDywhFXxwjl16Vsw";
 
 ReactDOM.render(
   <React.StrictMode>

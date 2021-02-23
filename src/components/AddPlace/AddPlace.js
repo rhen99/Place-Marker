@@ -1,23 +1,33 @@
 import { useContext } from "react";
 import { PlaceContext } from "../../contexts/PlaceProvider";
-import {Modal, Button, Form} from 'react-bootstrap'
+import {Modal, Button, Form, Alert} from 'react-bootstrap'
 
 function AddPlace() {
-    const { show, setModal, place, setPlace, useCurrentLocation, setUseCurrentLocation } = useContext(PlaceContext)
+    const { show, setModal, place, setPlace, useCurrentLocation, setUseCurrentLocation, error, success, handleSubmit } = useContext(PlaceContext)
     return (
         <Modal show={show} onHide={() => setModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Add Place</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-            <Form>
+            {error ? 
+            <Alert variant="danger">
+                {error}
+            </Alert>
+            : ''}
+            {success ? 
+            <Alert variant="success">
+                {success}
+            </Alert>
+            : ''}
+            <Form onSubmit={handleSubmit}>
                 <Form.Group>
                     <Form.Label htmlFor="title">Title</Form.Label>
                     <Form.Control name="title" id="title" onChange={(e) => setPlace({...place, [e.target.name]: e.target.value})} value={place.title}/>
                 </Form.Group>
                 <Form.Group>
                     <Form.Label htmlFor="description">Description</Form.Label>
-                    <Form.Control as="textarea" name="description" id="title" onChange={(e) => setPlace({...place, [e.target.name]: e.target.value})} value={place.title}/>
+                    <Form.Control as="textarea" name="description" id="title" onChange={(e) => setPlace({...place, [e.target.name]: e.target.value})} value={place.description}/>
                 </Form.Group>
                 <Form.Group>
                     <Form.Check type="checkbox"  label="Use Your Current Location" checked={useCurrentLocation ? true : false} onChange={() => setUseCurrentLocation(!useCurrentLocation)}/>

@@ -1,5 +1,6 @@
-import React, {useRef, useState, useEffect} from 'react';
+import React, {useRef, useState, useEffect, useContext} from 'react';
 import mapboxgl from 'mapbox-gl';
+import { AuthContext } from "./AuthProvider";
 
 export const PlaceContext = React.createContext();
 function PlaceProvider({children}) {
@@ -23,6 +24,8 @@ function PlaceProvider({children}) {
     const [useCurrentLocation, setUseCurrentLocation] = useState(true);
 
     const [show, setShow] = useState(false);
+
+    const { isAuthenticated } = useContext(AuthContext);
 
     const addMarkers = (markers) => {
         markers.forEach(marker => {
@@ -124,11 +127,13 @@ function PlaceProvider({children}) {
                 alert('Your browser doesn\'t support Geolocation');
             }
         }
-        if(!map){
-            initializeMap({setMap, mapContainer})
-            
+        if(isAuthenticated){
+            if(!map){
+                initializeMap({setMap, mapContainer})
+                console.log(map);
+            }
         }
-    }, [map, places]);
+    }, [map, places, isAuthenticated]);
     
     const value = {
         mapContainer,

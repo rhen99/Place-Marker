@@ -1,6 +1,7 @@
 import React, {useRef, useState, useEffect, useContext} from 'react';
 import mapboxgl from 'mapbox-gl';
 import { AuthContext } from "./AuthProvider";
+import { firestore, firebase } from '../firebase/config'
 
 export const PlaceContext = React.createContext();
 function PlaceProvider({children}) {
@@ -33,42 +34,30 @@ function PlaceProvider({children}) {
         });
     }
 
-    const getPlaces = () => {
-        setPlaces([
-            {
-                title: "test1",
-                description: "test1",
-                latitude: 14.8103,
-                longitude: 120.7867,
-                user_id: 1
-            },
-            {
-                title: "test2",
-                description: "test2",
-                latitude: 14.8300,
-                longitude: 120.7011,
-                user_id: 1
-            },
-            {
-                title: "test3",
-                description: "test3",
-                latitude: 14.9213,
-                longitude: 120.1234,
-                user_id: 1
-            },
-            {
-                title: "test4",
-                description: "test5",
-                latitude: 14.8601,
-                longitude: 120.8867,
-                user_id: 1
-            },
-        ]);
+    const getPlaces = async () => {
+        const placesArr = [];
+        try {
+            const qss = await firestore.collection('places').get();
+
+            qss.forEach(doc => {
+
+                const data = {
+                    title: doc.data().title,
+                    description: doc.data().description,
+                    latitude: doc.data().location.latitude,
+                    longitude: doc.data().location.longitude
+                }
+                placesArr.push(data);
+            });
+        } catch (error) {
+            console.error(error);
+        }
+        setPlaces(placesArr);
     }
 
     const setModal = (state) => setShow(state); 
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         setError('');
@@ -78,16 +67,21 @@ function PlaceProvider({children}) {
         if(place.longitude === '' || place.latitude === '') return setError('Please fill in your longitude, and latitude.');
 
         if(useCurrentLocation){
-            const success = (position) => {
-                const data = {
+            const success = async (position) => {
+                 
+                try {
+                    const data = {
                     title: place.title,
                     description: place.description,
-                    longitude: position.coords.longitude,
-                    latitude: position.coords.latitude,
-                    user_id: 1
+                    location: new firebase.firestore.GeoPoint(position.coords.latitude, position.coords.longitude)
 
                 }
-                setPlaces([...places, data]);
+                    await firestore.collection('places').add(data);
+                    
+                } catch (error) {
+                    console.error(error)
+                    
+                }
 
                 
             }
@@ -96,10 +90,20 @@ function PlaceProvider({children}) {
             navigator.geolocation.getCurrentPosition(success, error);
             
         }else{
-            setPlaces([...places, place]);
-            
+            try {
+                const data = {
+                    title: place.title,
+                    description: place.description,
+                    location: new firebase.firestore.GeoPoint(parseFloat(place.latitude), parseFloat(place.longitude))
+                }
+                await firestore.collection('places').add(data);
+            } catch (error) {
+                console.error(error);
+            }
         }
+        
         setSuccess('Added Successfully');
+        getPlaces();
     }
 
     useEffect(() => {

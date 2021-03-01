@@ -3,7 +3,7 @@ import { PlaceContext } from "../../contexts/PlaceProvider";
 import {Modal, Button, Form, Alert} from 'react-bootstrap'
 
 function AddPlace() {
-    const { show, setModal, place, setPlace, useCurrentLocation, setUseCurrentLocation, error, success, handleSubmit } = useContext(PlaceContext)
+    const { show, setModal, place, setPlace, useCurrentLocation, setUseCurrentLocation, error, success, handleSubmit, markerImage } = useContext(PlaceContext)
     return (
         <Modal show={show} onHide={() => setModal(false)}>
         <Modal.Header closeButton>
@@ -40,9 +40,13 @@ function AddPlace() {
                     <Form.Label htmlFor="longitude">Longitude</Form.Label>
                     <Form.Control name="longitude" id="longitude" onChange={(e) => setPlace({...place, [e.target.name]: e.target.value})} value={place.longitude} disabled={useCurrentLocation ? true : false}/>
                 </Form.Group>
+                <Form.Group>
+                    <Form.File ref={markerImage} />
+                </Form.Group>
                 <Button variant="primary" type="submit">
                     Add Place
                 </Button>
+                
             </Form>
         </Modal.Body>
       </Modal>

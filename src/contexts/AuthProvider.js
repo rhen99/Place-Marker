@@ -1,35 +1,51 @@
 import React, { useState, useEffect } from "react";
-import { useHistory } from "react-router-dom";
+import { auth } from "../firebase/config";
 export const AuthContext = React.createContext()
 function AuthProvider({children}) {
 
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-    const history = useHistory();
+    const [currentUser, setCurrentUser] = useState({});
+    const [error, setError] = useState(null);
 
-    const login = () => {
-        setIsAuthenticated(true);
-        history.push('/');
+    const login = async (provider) => {
+        try {
+            await auth.signInWithPopup(provider);
+            window.location.reload();
+        } catch (error) {
+            setError(error.message);
+            
+        }
     }
-    const logout = (e) => {
+    const logout = async (e) => {
         e.preventDefault();
-        setIsAuthenticated(false);
-        history.push('/login');
+        try {
+            await auth.signOut();
+            window.location.reload();
+        } catch (error) {
+            console.error(error);
+        }
+        
     }
 
     useEffect(() => {
-        if(isAuthenticated){
-            localStorage.setItem('isAuthenticated', true);
-        }else{
-            localStorage.removeItem('isAuthenticated');
-        }
-    }, [isAuthenticated])
+        const unsubscribe = auth.onAuthStateChanged(user => {
+            if(user){
+                setCurrentUser(user);
+                localStorage.setItem('isAuthenticated', true);
+            }else{
+                setCurrentUser({});
+                localStorage.removeItem('isAuthenticated');
+            }
+        });
+        return unsubscribe
+    },[])
 
 
     const value = {
         login,
         logout,
-        isAuthenticated
+        currentUser,
+        error
     }
     return (
         <AuthContext.Provider value={value}>

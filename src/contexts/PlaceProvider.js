@@ -26,18 +26,22 @@ function PlaceProvider({children}) {
 
     const [show, setShow] = useState(false);
 
-    const { isAuthenticated } = useContext(AuthContext);
+    const { currentUser } = useContext(AuthContext);
 
     const addMarkers = (markers) => {
         markers.forEach(marker => {
-            new mapboxgl.Marker().setLngLat([marker.longitude, marker.latitude]).addTo(map);
+
+           
+            const popup = new mapboxgl.Popup().setLngLat([marker.longitude, marker.latitude]).setHTML(`<h5 style="font-size: 16px; font-weight: 700">${marker.title}</h5><p>${marker.description}</p>`);
+
+             new mapboxgl.Marker().setLngLat([marker.longitude, marker.latitude]).setPopup(popup).addTo(map);
         });
     }
 
     const getPlaces = async () => {
         const placesArr = [];
         try {
-            const qss = await firestore.collection('places').get();
+            const qss = await firestore.collection('places').where('user_id','==', currentUser.uid).get();
 
             qss.forEach(doc => {
 
@@ -73,7 +77,8 @@ function PlaceProvider({children}) {
                     const data = {
                     title: place.title,
                     description: place.description,
-                    location: new firebase.firestore.GeoPoint(position.coords.latitude, position.coords.longitude)
+                    location: new firebase.firestore.GeoPoint(position.coords.latitude, position.coords.longitude),
+                    user_id: currentUser.uid
 
                 }
                     await firestore.collection('places').add(data);
@@ -94,7 +99,8 @@ function PlaceProvider({children}) {
                 const data = {
                     title: place.title,
                     description: place.description,
-                    location: new firebase.firestore.GeoPoint(parseFloat(place.latitude), parseFloat(place.longitude))
+                    location: new firebase.firestore.GeoPoint(parseFloat(place.latitude), parseFloat(place.longitude)),
+                    user_id: currentUser.uid
                 }
                 await firestore.collection('places').add(data);
             } catch (error) {
@@ -121,6 +127,9 @@ function PlaceProvider({children}) {
                     
 
                 });
+                map.off('load', () => {
+                    setMap(null);
+                })
 
             }
             const error = () => alert('Geolocation Failed');
@@ -131,13 +140,12 @@ function PlaceProvider({children}) {
                 alert('Your browser doesn\'t support Geolocation');
             }
         }
-        if(isAuthenticated){
+        if(Object.keys(currentUser).length > 0){
             if(!map){
                 initializeMap({setMap, mapContainer})
-                console.log(map);
             }
         }
-    }, [map, places, isAuthenticated]);
+    }, [map, places, currentUser]);
     
     const value = {
         mapContainer,

@@ -1,0 +1,6 @@
+.marker {
+  width: 30px;
+  height: 30px;
+  background: #333 no-repeat center center / cover;
+  border-radius: 50%;
+}

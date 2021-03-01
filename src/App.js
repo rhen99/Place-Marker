@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Switch } from 'react-router-dom';
 
+import "./App.css";
 import Navbar from './components/Navbar/Navbar';
 import GuestRoute from "./components/GuestRoute/GuestRoute";
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute'
@@ -16,7 +17,7 @@ function App() {
         <Navbar/>
         <Switch>
           <GuestRoute component={Login} path="/login"/>
-          <ProtectedRoute component={ProtectedComponents} path="/"/>
+          <ProtectedRoute component={ProtectedComponents} path="/" exact/>
         </Switch>
       </PlaceProvider>
     </AuthProvider>

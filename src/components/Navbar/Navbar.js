@@ -5,7 +5,7 @@ import { AuthContext } from "../../contexts/AuthProvider";
 function Navbar() {
 
     const { setModal } = useContext(PlaceContext);
-    const { isAuthenticated, logout } = useContext(AuthContext);
+    const { currentUser, logout } = useContext(AuthContext);
 
     const handleShow = (e) => {
         e.preventDefault();
@@ -19,7 +19,7 @@ function Navbar() {
                 <BootstrapNavbar.Brand href="#home">LAGS Place Marker</BootstrapNavbar.Brand>
                 <BootstrapNavbar.Toggle aria-controls="basic-navbar-nav" />
                 <BootstrapNavbar.Collapse id="basic-navbar-nav">
-                    { isAuthenticated ? (
+                    { Object.keys(currentUser).length > 0 ? (
                         <>
                         <Nav className="mr-auto">
                             <Nav.Link href="!#" onClick={handleShow}>Add Your Place</Nav.Link>

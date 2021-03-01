@@ -1,17 +1,19 @@
 import { useContext } from "react";
-import { Container, Button, Row, Col, Card } from "react-bootstrap";
+import { Container, Button, Row, Col, Card, Alert } from "react-bootstrap";
 
-import { AuthContext } from '../../contexts/AuthProvider'
+import { AuthContext } from '../../contexts/AuthProvider';
+import { googleProvider } from "../../firebase/config";
 function Login() {
-    const {login} = useContext(AuthContext);
+    const {login, error} = useContext(AuthContext);
     return (
         <Container>
             <Row className="justify-content-center my-3">
                 <Col md="6">
                     <Card>
                         <Card.Body>
-                            <Button block variant="danger" onClick={login}>Login With Google</Button>
-                            <Button block variant="primary" onClick={login}>Login With Facebook</Button>
+                            {error ? (<Alert variant="danger">{error}</Alert>) : ''}
+                            <Button block variant="danger" onClick={() => login(googleProvider)}>Login With Google</Button>
+                            
                         </Card.Body>
                     </Card>
                 </Col>
